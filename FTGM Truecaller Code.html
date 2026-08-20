@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FTGM Caller Intelligence</title>
+<meta name="description" content="Premium global caller intelligence & network detection." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+  :root {
+    --bg: #0b0f19;
+    --card-bg: #151b2c;
+    --fg: #f1f5f9;
+    --muted: #64748b;
+    --border: #242f49;
+    --primary: #38bdf8;
+    --primary-hover: #0ea5e9;
+    --success: #10b981;
+    --danger: #ef4444;
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Header */
+  header {
+    background: #0d1321;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-inner {
+    max-width: 600px; margin: 0 auto;
+    padding: 1rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand { display: flex; align-items: center; gap: .5rem; }
+  .brand-mark { color: var(--primary); font-size: 1.2rem; }
+  .brand-name {
+    font-weight: 700; font-size: 1.1rem;
+    letter-spacing: -.02em;
+  }
+  .status {
+    display: inline-flex; align-items: center; gap: .4rem;
+    color: var(--success); font-size: .75rem; font-weight: 600;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--success);
+    box-shadow: 0 0 8px var(--success);
+  }
+
+  /* Layout */
+  main { max-width: 500px; width: 100%; margin: 0 auto; padding: 2rem 1rem; flex: 1; }
+
+  .card {
+    border-radius: 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+  }
+
+  /* Hero */
+  .hero { text-align: center; margin-bottom: 1.5rem; }
+  h1.title { font-weight: 800; font-size: 1.5rem; margin-bottom: .25rem; }
+  .subtitle { color: var(--muted); font-size: .85rem; }
+
+  /* Input */
+  .field { margin-top: 1rem; }
+  .field-label {
+    display: flex; align-items: center; gap: .4rem;
+    color: var(--muted); font-size: .75rem; font-weight: 600;
+    text-transform: uppercase; margin-bottom: .5rem;
+  }
+  .input-wrap {
+    display: flex; align-items: center;
+    border-radius: .5rem;
+    background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .prefix {
+    padding: .75rem 1rem;
+    background: rgba(255,255,255,0.03);
+    border-right: 1px solid var(--border);
+    color: var(--primary); font-family: var(--font-mono); font-weight: 700;
+  }
+  #phoneNumber {
+    flex: 1; background: transparent; border: 0; outline: 0;
+    padding: .75rem; font-family: var(--font-mono);
+    font-size: 1rem; color: var(--fg);
+  }
+  #phoneNumber::placeholder { color: #475569; }
+
+  /* Buttons */
+  .actions { display: flex; flex-direction: column; gap: .5rem; margin-top: 1rem; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: .5rem; padding: .75rem; border-radius: .5rem;
+    font-weight: 600; font-size: .9rem;
+    cursor: pointer; border: 1px solid transparent;
+    transition: background .2s, border-color .2s;
+  }
+  .btn:disabled { opacity: .6; cursor: not-allowed; }
+  .btn-primary {
+    background: var(--primary);
+    color: #0b0f19;
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+  .btn-ghost {
+    background: transparent; border-color: var(--border); color: var(--muted);
+  }
+  .btn-ghost:hover { color: var(--fg); border-color: var(--muted); }
+  .btn-accent {
+    background: rgba(56,189,248,0.05); border-color: rgba(56,189,248,0.2); color: var(--primary); text-decoration: none;
+  }
+  .btn-accent:hover { background: rgba(56,189,248,0.1); }
+
+  /* Error */
+  .error {
+    display: none; align-items: center; gap: .5rem;
+    padding: .75rem; margin-top: 1rem;
+    border-radius: .5rem; border: 1px solid rgba(239,68,68,0.2);
+    background: rgba(239,68,68,0.05); color: var(--danger); font-weight: 500; font-size: .85rem;
+  }
+  .error.show { display: flex; }
+
+  /* Result */
+  .result { display: none; margin-top: 1.5rem; position: relative; }
+  .result.show { display: block; }
+  .result-inner {
+    border-radius: .75rem; border: 1px solid var(--border);
+    background: rgba(255,255,255,0.01);
+    padding: 1.25rem;
+  }
+  .result-header {
+    display: flex; align-items: center; gap: .4rem;
+    color: var(--primary); font-size: .75rem; font-weight: 700;
+    text-transform: uppercase; margin-bottom: 1rem;
+  }
+  .owner {
+    display: flex; align-items: center; gap: .75rem;
+    padding: 1rem; border-radius: .5rem;
+    background: rgba(0,0,0,0.15); border: 1px solid var(--border);
+    margin-bottom: .75rem;
+  }
+  .avatar {
+    width: 2.5rem; height: 2.5rem; border-radius: .5rem;
+    display: grid; place-items: center;
+    background: rgba(56,189,248,0.1); color: var(--primary);
+    font-size: 1.1rem;
+  }
+  .owner-label { font-size: .65rem; font-weight: 600; color: var(--muted); text-transform: uppercase; }
+  .owner-name { font-weight: 700; font-size: 1.2rem; }
+  
+  .meta {
+    display: flex; align-items: center; gap: .75rem;
+    padding: 1rem; border-radius: .5rem;
+    background: rgba(0,0,0,0.15); border: 1px solid var(--border);
+  }
+  .meta-icon {
+    width: 2.5rem; height: 2.5rem;
+    display: grid; place-items: center; border-radius: .5rem;
+    background: rgba(255,255,255,0.03); color: var(--muted);
+  }
+  .meta-label { font-size: .65rem; font-weight: 600; color: var(--muted); text-transform: uppercase; }
+  .meta-value { font-size: 1rem; font-weight: 700; }
+  .net-jazz { color: #ff8a3d; }
+  .net-zong { color: #22c55e; }
+  .net-ufone { color: #a855f7; }
+  .net-telenor { color: #38bdf8; }
+  .net-unknown { color: var(--muted); }
+
+  /* Loading Spinner */
+  .loading {
+    display: none; position: absolute; inset: 0; z-index: 20;
+    align-items: center; justify-content: center; flex-direction: column;
+    gap: .75rem; border-radius: .75rem;
+    background: rgba(21,27,44,0.95);
+  }
+  .loading.show { display: flex; }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid rgba(56,189,248,0.1);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text {
+    font-size: .75rem; font-weight: 600; color: var(--primary);
+    text-transform: uppercase; letter-spacing: .1em;
+  }
+
+  /* Footer */
+  footer {
+    padding: 1.5rem 1rem;
+    border-top: 1px solid var(--border); margin-top: auto;
+    text-align: center; font-size: .8rem; color: var(--muted);
+  }
+  .footer-inner { display: flex; flex-direction: column; align-items: center; gap: .75rem; }
+  .socials { display: flex; gap: .5rem; }
+  .socials a {
+    width: 2rem; height: 2rem; border-radius: .25rem;
+    display: grid; place-items: center;
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+    color: var(--muted); text-decoration: none;
+  }
+  .socials a:hover { color: var(--fg); border-color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-mark"><i class="fa-solid fa-satellite-dish"></i></div>
+      <span class="brand-name">FTGM Truecaller</span>
+    </div>
+    <div class="status"><span class="dot"></span>Online</div>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <div class="hero">
+      <h1 class="title">FTGM Cyber Intelligence</h1>
+      <p class="subtitle">Caller intelligence &amp; network detection.</p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="phoneNumber">
+        <i class="fa-solid fa-hashtag"></i> Phone Number (No Country Prefix)
+      </label>
+      <div class="input-wrap">
+        <div class="prefix"><i class="fa-solid fa-plus"></i></div>
+        <input id="phoneNumber" type="tel" inputmode="numeric" autocomplete="off" placeholder="923036992121" />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="lookupBtn" type="button">
+        <i class="fa-solid fa-magnifying-glass"></i><span>Search</span>
+      </button>
+      <button class="btn btn-ghost" id="sampleBtn" type="button">
+        <i class="fa-solid fa-bolt"></i><span>Try a Demo</span>
+      </button>
+      <a class="btn btn-accent" href="https://ftgmdb.pages.dev" target="_blank" rel="noreferrer">
+        <i class="fa-solid fa-database"></i><span>Try our Sim DB</span>
+      </a>
+    </div>
+
+    <div class="error" id="errorBox">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span id="errorText">Invalid number format</span>
+    </div>
+
+    <div class="result" id="resultSection">
+      <div class="result-inner">
+        <div class="loading" id="loadingOverlay">
+          <div class="spinner"></div>
+          <div class="loading-text">Searching…</div>
+        </div>
+
+        <div class="result-header"><i class="fa-solid fa-fingerprint"></i> Identity Verified</div>
+
+        <div class="owner">
+          <div class="avatar"><i class="fa-solid fa-user"></i></div>
+          <div>
+            <div class="owner-label">Owner</div>
+            <div class="owner-name" id="nameDisplay">—</div>
+          </div>
+        </div>
+
+        <div class="meta">
+          <div class="meta-icon"><i class="fa-solid fa-tower-cell"></i></div>
+          <div>
+            <div class="meta-label">Network</div>
+            <div class="meta-value" id="networkDisplay">—</div>
+          </div>
+        </div>
+
+        <!-- Hidden elements to prevent JS errors -->
+        <span id="countryDisplay" style="display: none;"></span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div>FTGM TRUECALLER - Global phone intelligence</div>
+    <div class="socials">
+      <a href="https://t.me/FTGMHACKS" aria-label="Telegram"><i class="fa-brands fa-telegram"></i></a>
+      <a href="https://whatsapp.com/channel/0029VbDQFi9KmCPUDQEwVW2W" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+      <a href="https://youtube.com/@ftgmtech" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+    </div>
+    <div>&copy; Rana Faisal Ali. All rights reserved.</div>
+  </div>
+</footer>
+
+<script>
+  const countryCodes = {"1":"United States/Canada","7":"Russia/Kazakhstan","20":"Egypt","27":"South Africa","30":"Greece","31":"Netherlands","32":"Belgium","33":"France","34":"Spain","36":"Hungary","39":"Italy","40":"Romania","41":"Switzerland","43":"Austria","44":"United Kingdom","45":"Denmark","46":"Sweden","47":"Norway","48":"Poland","49":"Germany","51":"Peru","52":"Mexico","53":"Cuba","54":"Argentina","55":"Brazil","56":"Chile","57":"Colombia","58":"Venezuela","60":"Malaysia","61":"Australia","62":"Indonesia","63":"Philippines","64":"New Zealand","65":"Singapore","66":"Thailand","81":"Japan","82":"South Korea","84":"Vietnam","86":"China","90":"Turkey","91":"India","92":"Pakistan","93":"Afghanistan","94":"Sri Lanka","95":"Myanmar","98":"Iran","212":"Morocco","213":"Algeria","216":"Tunisia","218":"Libya","220":"Gambia","221":"Senegal","222":"Mauritania","223":"Mali","224":"Guinea","225":"Ivory Coast","226":"Burkina Faso","227":"Niger","228":"Togo","229":"Benin","230":"Mauritius","231":"Liberia","232":"Sierra Leone","233":"Ghana","234":"Nigeria","235":"Chad","236":"Central African Republic","237":"Cameroon","238":"Cape Verde","239":"Sao Tome and Principe","240":"Equatorial Guinea","241":"Gabon","242":"Congo","243":"DR Congo","244":"Angola","245":"Guinea-Bissau","248":"Seychelles","249":"Sudan","250":"Rwanda","251":"Ethiopia","252":"Somalia","253":"Djibouti","254":"Kenya","255":"Tanzania","256":"Uganda","257":"Burundi","258":"Mozambique","260":"Zambia","261":"Madagascar","262":"Reunion","263":"Zimbabwe","264":"Namibia","265":"Malawi","266":"Lesotho","267":"Botswana","268":"Eswatini","269":"Comoros","290":"Saint Helena","291":"Eritrea","297":"Aruba","298":"Faroe Islands","299":"Greenland","350":"Gibraltar","351":"Portugal","352":"Luxembourg","353":"Ireland","354":"Iceland","355":"Albania","356":"Malta","357":"Cyprus","358":"Finland","359":"Bulgaria","370":"Lithuania","371":"Latvia","372":"Estonia","373":"Moldova","374":"Armenia","375":"Belarus","376":"Andorra","377":"Monaco","378":"San Marino","380":"Ukraine","381":"Serbia","382":"Montenegro","383":"Kosovo","385":"Croatia","386":"Slovenia","387":"Bosnia and Herzegovina","389":"North Macedonia","420":"Czech Republic","421":"Slovakia","423":"Liechtenstein","500":"Falkland Islands","501":"Belize","502":"Guatemala","503":"El Salvador","504":"Honduras","505":"Nicaragua","506":"Costa Rica","507":"Panama","508":"Saint Pierre and Miquelon","509":"Haiti","590":"Guadeloupe","591":"Bolivia","592":"Guyana","593":"Ecuador","594":"French Guiana","595":"Paraguay","596":"Martinique","597":"Suriname","598":"Uruguay","599":"Caribbean Netherlands","670":"East Timor","672":"Norfolk Island","673":"Brunei","674":"Nauru","675":"Papua New Guinea","676":"Tonga","677":"Solomon Islands","678":"Vanuatu","679":"Fiji","680":"Palau","681":"Wallis and Futuna","682":"Cook Islands","683":"Niue","685":"Samoa","686":"Kiribati","687":"New Caledonia","688":"Tuvalu","689":"French Polynesia","690":"Tokelau","691":"Micronesia","692":"Marshall Islands","850":"North Korea","852":"Hong Kong","853":"Macau","855":"Cambodia","856":"Laos","880":"Bangladesh","886":"Taiwan","960":"Maldives","961":"Lebanon","962":"Jordan","963":"Syria","964":"Iraq","965":"Kuwait","966":"Saudi Arabia","967":"Yemen","968":"Oman","970":"Palestine","971":"UAE","972":"Israel","973":"Bahrain","974":"Qatar","975":"Bhutan","976":"Mongolia","977":"Nepal","992":"Tajikistan","993":"Turkmenistan","994":"Azerbaijan","995":"Georgia","996":"Kyrgyzstan","998":"Uzbekistan"};
+
+  function detectNetwork(number) {
+    if (number.startsWith('92')) {
+      const local = number.substring(2);
+      if (local.length >= 3) {
+        const p = parseInt(local.substring(0, 3), 10);
+        if ((p >= 300 && p <= 309) || (p >= 320 && p <= 329)) return { name: 'Jazz', cls: 'net-jazz' };
+        if ((p >= 310 && p <= 319) || (p >= 370 && p <= 371)) return { name: 'Zong', cls: 'net-zong' };
+        if (p >= 330 && p <= 339) return { name: 'Ufone', cls: 'net-ufone' };
+        if (p >= 340 && p <= 349) return { name: 'Telenor', cls: 'net-telenor' };
+      }
+    }
+    return { name: 'Not From Pak', cls: 'net-unknown' };
+  }
+  function detectCountry(number) {
+    for (let len = 3; len >= 1; len--) {
+      const code = number.substring(0, len);
+      if (countryCodes[code]) return { code, name: countryCodes[code] };
+    }
+    return { code: '—', name: 'Unknown' };
+  }
+
+  const $ = (id) => document.getElementById(id);
+  const phoneInput = $('phoneNumber'), lookupBtn = $('lookupBtn'), sampleBtn = $('sampleBtn');
+  const resultSection = $('resultSection'), nameDisplay = $('nameDisplay');
+  const networkDisplay = $('networkDisplay'), countryDisplay = $('countryDisplay');
+  const errorBox = $('errorBox'), errorText = $('errorText'), loadingOverlay = $('loadingOverlay');
+  const API_BASE = 'https://faisal-ali-truecaller.ftgmhacks.workers.dev/?key=ftgm7795caller&number=';
+
+  function showError(msg) { errorText.textContent = msg; errorBox.classList.add('show'); resultSection.classList.remove('show'); }
+  function hideError() { errorBox.classList.remove('show'); }
+  function setLoading(on) {
+    if (on) {
+      loadingOverlay.classList.add('show');
+      lookupBtn.disabled = true;
+      lookupBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Searching…</span>';
+    } else {
+      loadingOverlay.classList.remove('show');
+      lookupBtn.disabled = false;
+      lookupBtn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i><span>Search</span>';
+    }
+  }
+
+  async function performLookup(number) {
+    hideError();
+    const cleaned = number.replace(/\s+/g, '').replace(/\+/g, '');
+    if (!/^\d+$/.test(cleaned)) return showError('Invalid number format. Use digits only.');
+    if (cleaned.length < 7) return showError('Number too short. Include country code.');
+
+    const country = detectCountry(cleaned);
+    const network = detectNetwork(cleaned);
+    setLoading(true);
+    resultSection.classList.add('show');
+
+    try {
+      const res = await fetch(API_BASE + encodeURIComponent(cleaned));
+      const data = await res.json();
+      if (data.status !== 'success' || !data.data) throw new Error(data.message || 'No data returned');
+      nameDisplay.textContent = data.data.name || 'Unknown';
+      networkDisplay.innerHTML = '<span class="' + network.cls + '">' + network.name + '</span>';
+      countryDisplay.textContent = country.name;
+    } catch (err) {
+      console.error('Lookup error:', err);
+      nameDisplay.textContent = '—';
+      networkDisplay.innerHTML = '<span class="' + network.cls + '">' + network.name + '</span>';
+      countryDisplay.textContent = country.name;
+      if (err.message && err.message !== 'No data returned') showError('API Error: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  lookupBtn.addEventListener('click', () => performLookup(phoneInput.value.trim()));
+  phoneInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') lookupBtn.click(); });
+  phoneInput.addEventListener('input', hideError);
+  sampleBtn.addEventListener('click', () => { phoneInput.value = '923036992121'; performLookup('923035992121'); });
+</script>
+</body>
+</html>
